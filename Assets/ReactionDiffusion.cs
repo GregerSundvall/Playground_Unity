@@ -12,10 +12,10 @@ public class ReactionDiffusion : MonoBehaviour {
     private int height = 200;
     
     private float diffuseA = 1f;
-    private float diffuseB = 0.5f;
+    private float diffuseB = 0.3f;
     
-    private float feed = 0.11f;
-    private float kill = 0.052f;
+    private float feed = 0.055f;
+    private float kill = 0.062f;
     
     List<List<Pixel>> grid;
     List<List<Pixel>> gridBack;
@@ -66,12 +66,12 @@ public class ReactionDiffusion : MonoBehaviour {
                     a +
                     (diffuseA * Laplace(x, y, false)) -
                     (a * b * b) +
-                    (feed * (1 - a)));// * Time.deltaTime;
+                    (feed * (1 - a)));
                 gridBack[x][y].B = Mathf.Clamp01(
                     b +
                     (diffuseB * Laplace(x, y, true)) +
                     (a * b * b) -
-                    ((kill + feed) * b));//* Time.deltaTime;
+                    ((kill + feed) * b));
             }
         }
 
@@ -108,7 +108,7 @@ public class ReactionDiffusion : MonoBehaviour {
             sum += grid[x + 1][y - 1].B * 0.05f;
             sum += grid[x + 1][y + 1].B * 0.05f;
             sum += grid[x - 1][y + 1].B * 0.05f;
-            return sum;
+            return sum * Time.deltaTime * 60;
         }
 
         sum += grid[x][y].A * -1f;
@@ -120,7 +120,7 @@ public class ReactionDiffusion : MonoBehaviour {
         sum += grid[x + 1][y - 1].A * 0.05f;
         sum += grid[x + 1][y + 1].A * 0.05f;
         sum += grid[x - 1][y + 1].A * 0.05f;
-        return sum;
+        return sum * Time.deltaTime * 60;
     }
 
     void SetSomeRandomPixBlack(int count)
