@@ -8,20 +8,21 @@ public class Pixel {
 }
 
 public class ReactionDiffusion : MonoBehaviour {
-    private int width = 150;
-    private int height = 150;
+    private int width = 200;
+    private int height = 200;
     
     private float diffuseA = 1f;
     private float diffuseB = 0.5f;
     
-    private float feed = 0.10389f;
-    private float kill = 0.05373f;
+    private float feed = 0.11f;
+    private float kill = 0.052f;
     
     List<List<Pixel>> grid;
     List<List<Pixel>> gridBack;
     private Texture2D texture;
     
 
+    
     void Start()
     {
         grid = new List<List<Pixel>>();
