@@ -10,15 +10,16 @@ public class Pixel {
 public class ReactionDiffusion : MonoBehaviour {
     private int width = 200;
     private int height = 200;
+    private int speed = 62; //Needs to be close to fps?
+    private int startPoints = 6;
     
     private float diffuseA = 1f;
     private float diffuseB = 0.3f;
-    
     private float feed = 0.055f;
     private float kill = 0.062f;
     
     List<List<Pixel>> grid;
-    List<List<Pixel>> gridBack;
+    List<List<Pixel>> gridNew;
     private Texture2D texture;
     
 
@@ -26,7 +27,7 @@ public class ReactionDiffusion : MonoBehaviour {
     void Start()
     {
         grid = new List<List<Pixel>>();
-        gridBack = new List<List<Pixel>>();
+        gridNew = new List<List<Pixel>>();
         texture = new Texture2D(width, height);
         GetComponent<Renderer>().material.mainTexture = texture;
 
@@ -40,10 +41,10 @@ public class ReactionDiffusion : MonoBehaviour {
                 listBack.Add(new Pixel());
             }
             grid.Add(list);
-            gridBack.Add(listBack);
+            gridNew.Add(listBack);
         }
 
-        SetSomeRandomPixBlack(50);
+        SetSomeRandomPixBlack(startPoints);
     }
 
     
@@ -62,12 +63,12 @@ public class ReactionDiffusion : MonoBehaviour {
                 var a = grid[x][y].A;
                 var b = grid[x][y].B;
 
-                gridBack[x][y].A = Mathf.Clamp01(
+                gridNew[x][y].A = Mathf.Clamp01(
                     a +
                     (diffuseA * Laplace(x, y, false)) -
                     (a * b * b) +
                     (feed * (1 - a)));
-                gridBack[x][y].B = Mathf.Clamp01(
+                gridNew[x][y].B = Mathf.Clamp01(
                     b +
                     (diffuseB * Laplace(x, y, true)) +
                     (a * b * b) -
@@ -76,8 +77,8 @@ public class ReactionDiffusion : MonoBehaviour {
         }
 
         var temp = grid;
-        grid = gridBack;
-        gridBack = temp;
+        grid = gridNew;
+        gridNew = temp;
     }
     
     void UpdateTexture()
@@ -86,8 +87,8 @@ public class ReactionDiffusion : MonoBehaviour {
         {
             for (int y = 0; y < height; y++)
             {
-                float value = grid[x][y].A - grid[x][y].B;
-                Color color = new Color(grid[x][y].A, value, grid[x][y].B, 1);
+                float value = gridNew[x][y].A - gridNew[x][y].B;
+                Color color = new Color(gridNew[x][y].A, value, gridNew[x][y].B, 1);
                 texture.SetPixel(x, y, color);
             }
         }
@@ -108,7 +109,7 @@ public class ReactionDiffusion : MonoBehaviour {
             sum += grid[x + 1][y - 1].B * 0.05f;
             sum += grid[x + 1][y + 1].B * 0.05f;
             sum += grid[x - 1][y + 1].B * 0.05f;
-            return sum * Time.deltaTime * 60;
+            return sum * Time.deltaTime * speed;
         }
 
         sum += grid[x][y].A * -1f;
@@ -120,7 +121,7 @@ public class ReactionDiffusion : MonoBehaviour {
         sum += grid[x + 1][y - 1].A * 0.05f;
         sum += grid[x + 1][y + 1].A * 0.05f;
         sum += grid[x - 1][y + 1].A * 0.05f;
-        return sum * Time.deltaTime * 60;
+        return sum * Time.deltaTime * speed;
     }
 
     void SetSomeRandomPixBlack(int count)
